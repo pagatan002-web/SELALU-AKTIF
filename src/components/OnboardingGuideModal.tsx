@@ -16,7 +16,8 @@ import {
   Check,
   ExternalLink
 } from 'lucide-react';
-import { MASTER_HUB_SQL } from '../lib/sqlScripts';
+import { MASTER_HUB_SQL, TARGET_DB_SQL } from '../lib/sqlScripts';
+
 
 interface Props {
   isOpen: boolean;
@@ -55,6 +56,7 @@ export const OnboardingGuideModal: React.FC<Props> = ({
   const [internalStep, setInternalStep] = useState(stepIndex);
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
+  const [copiedTargetSql, setCopiedTargetSql] = useState(false);
 
   const currentStep = onStepChange ? stepIndex : internalStep;
 
@@ -78,6 +80,13 @@ export const OnboardingGuideModal: React.FC<Props> = ({
     setCopiedSql(true);
     setTimeout(() => setCopiedSql(false), 3000);
   };
+
+  const handleQuickCopyTargetSql = () => {
+    navigator.clipboard.writeText(TARGET_DB_SQL);
+    setCopiedTargetSql(true);
+    setTimeout(() => setCopiedTargetSql(false), 3000);
+  };
+
 
   const handleSavePreferenceAndClose = () => {
     if (dontShowAgain) {
@@ -154,9 +163,10 @@ export const OnboardingGuideModal: React.FC<Props> = ({
       detailPoints: [
         'Klik tombol "Tambah Proyek Pertama" di bawah.',
         'Isi Nama Proyek, URL Supabase, dan Anon Key proyek target.',
-        'Gunakan tombol "Uji Koneksi (Test)" sebelum menyimpan.',
-        'Data proyek akan otomatis tersinkronisasi ke Master Hub Anda di cloud.',
+        'Untuk mode WAL Mutation, tombol "Salin SQL Target" tersedia langsung di form.',
+        'Gunakan tombol "Uji Koneksi (Test)" sebelum menyimpan agar yakin terhubung.',
       ],
+
       actionLabel: 'Tambah Proyek Pertama',
       actionIcon: <Plus className="w-4 h-4" />,
       onAction: () => {
@@ -314,7 +324,43 @@ export const OnboardingGuideModal: React.FC<Props> = ({
             </div>
           )}
 
+          {/* Quick 1-Click Copy Box for Step 4 (Target DB SQL) */}
+          {currentStep === 3 && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-950 border-2 border-amber-500/40 shadow-brutal space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
+                  <Code className="w-4 h-4" />
+                  <span>Skrip SQL Target DB (_heartbeat)</span>
+                </div>
+                <span className="text-[10px] text-amber-400 font-mono bg-amber-950 px-2 py-0.5 rounded-full border border-amber-800">
+                  UNTUK WAL MUTATION
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                Jalankan skrip ini di SQL Editor database target Anda jika menggunakan metode WAL Mutation:
+              </p>
+              <button
+                type="button"
+                onClick={handleQuickCopyTargetSql}
+                className="w-full brutal-btn-primary py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer font-extrabold shadow-sm transition-all"
+              >
+                {copiedTargetSql ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-black" />}
+                <span>{copiedTargetSql ? '✅ Skrip SQL Target DB Berhasil Disalin!' : '📋 Salin Skrip SQL Target DB (_heartbeat)'}</span>
+              </button>
+              {copiedTargetSql ? (
+                <p className="text-[11px] text-amber-300 font-mono text-center animate-in fade-in py-1">
+                  Buka tab Supabase SQL Editor target &rarr; Tempel (Ctrl+V) &rarr; RUN. Beres!
+                </p>
+              ) : (
+                <p className="text-[10px] text-slate-400 text-center font-mono">
+                  Bisa juga disalin langsung saat mengisi formulir Tambah Proyek di bawah.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Contextual Action Button (if any) */}
+
           {current.actionLabel && current.onAction && (
             <div className="pt-1">
               <button

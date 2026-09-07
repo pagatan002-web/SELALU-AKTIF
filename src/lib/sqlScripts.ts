@@ -57,14 +57,16 @@ USING (true)
 WITH CHECK (true);
 `;
 
-export const TARGET_DB_SQL = `-- =======================================================
+export function generateTargetDbSql(customTable: string = '_heartbeat'): string {
+  const table = customTable.trim().replace(/[^a-zA-Z0-9_]/g, '') || '_heartbeat';
+  return `-- =======================================================
 -- TARGET DATABASE: Tabel Heartbeat Sentinel Ringan
 -- Jalankan di masing-masing Database Supabase Target
 -- (KAWAL, SIMDIK, BAKUMPUL, dll.)
 -- =======================================================
 
 -- 1. Buat tabel heartbeat ringan jika belum ada
-CREATE TABLE IF NOT EXISTS public._heartbeat (
+CREATE TABLE IF NOT EXISTS public.${table} (
   id TEXT PRIMARY KEY,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   heartbeat_source TEXT,
@@ -72,18 +74,22 @@ CREATE TABLE IF NOT EXISTS public._heartbeat (
 );
 
 -- 2. Aktifkan Row Level Security (RLS)
-ALTER TABLE public._heartbeat ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.${table} ENABLE ROW LEVEL SECURITY;
 
 -- 3. Beri izin Anon / Service Role untuk menulis heartbeat
-DROP POLICY IF EXISTS "Allow heartbeat write" ON public._heartbeat;
+DROP POLICY IF EXISTS "Allow heartbeat write" ON public.${table};
 CREATE POLICY "Allow heartbeat write"
-ON public._heartbeat FOR ALL
+ON public.${table} FOR ALL
 TO anon, authenticated, service_role
 USING (true)
 WITH CHECK (true);
 
 -- 4. Buat baris data awal
-INSERT INTO public._heartbeat (id, updated_at, heartbeat_source)
+INSERT INTO public.${table} (id, updated_at, heartbeat_source)
 VALUES ('sentinel-heartbeat-pulse', NOW(), 'INIT')
 ON CONFLICT (id) DO UPDATE SET updated_at = NOW();
 `;
+}
+
+export const TARGET_DB_SQL = generateTargetDbSql('_heartbeat');
+

@@ -1,4 +1,4 @@
-# Logs
+# Logs & Debug
 logs
 *.log
 npm-debug.log*
@@ -7,25 +7,44 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies & Build Output
 node_modules
 dist
 dist-ssr
 *.local
 
-# Environment & Secret Configs
+# Environment & Secret Configs (STRICT ZERO-LEAK)
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
-sentinel-config.json
+*.env
+*.env.local
+*.env.production
+*.env.development
 
-# Editor directories and files
+# Backup & Secret Export Files
+sentinel-config.json
+*backup*.json
+*secret*.json
+*.secret
+*.pem
+*.key
+*.cert
+credentials.json
+
+# Scratch & Temporary
+scratch/
+.system_generated/
+
+# Editor & OS directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+

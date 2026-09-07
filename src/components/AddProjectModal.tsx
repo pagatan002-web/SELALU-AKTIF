@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react';
 import type { SupabaseProject, HeartbeatMode } from '../types/sentinel';
 import { executeHeartbeat, sanitizeSupabaseUrl } from '../lib/sentinel';
-import { X, Sparkles, Database, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
+import { 
+  X, 
+  Sparkles, 
+  Database, 
+  CheckCircle2, 
+  AlertCircle, 
+  Loader2, 
+  ArrowRight,
+  Copy,
+  Check,
+  Code,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
+import { generateTargetDbSql } from '../lib/sqlScripts';
 
 interface Props {
   isOpen: boolean;
@@ -28,6 +42,11 @@ export const AddProjectModal: React.FC<Props> = ({
   const [targetMode, setTargetMode] = useState<HeartbeatMode>('wal_mutation');
   const [notes, setNotes] = useState('');
 
+  // Target SQL Copy & Preview State
+  const [copiedSql, setCopiedSql] = useState(false);
+  const [showSqlPreview, setShowSqlPreview] = useState(false);
+
+
   // Live Test State
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -51,11 +70,23 @@ export const AddProjectModal: React.FC<Props> = ({
       setNotes('');
     }
     setTestResult(null);
+    setCopiedSql(false);
+    setShowSqlPreview(false);
   }, [initialProject, isOpen]);
+
+  const targetSql = generateTargetDbSql(targetTable);
+
+  const handleCopyTargetSql = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    navigator.clipboard.writeText(targetSql);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 2500);
+  };
 
   if (!isOpen) return null;
 
   const handleTestConnection = async () => {
+
     if (!url.trim() || !anonKey.trim()) {
       setTestResult({ success: false, message: 'Harap isi Supabase URL dan Anon Key terlebih dahulu.' });
       return;
@@ -261,7 +292,87 @@ export const AddProjectModal: React.FC<Props> = ({
             </div>
           </div>
 
+          {/* WAL Mutation Quick SQL Copy Banner */}
+          {targetMode === 'wal_mutation' ? (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/40 via-slate-900/90 to-slate-950 border border-emerald-500/30 text-xs space-y-2.5 animate-in fade-in duration-200 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <Database className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-slate-200 font-bold text-xs">Skrip DDL Target DB:</span>
+                      <code className="px-1.5 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 font-mono text-[11px] font-semibold">
+                        public.{targetTable.trim().replace(/[^a-zA-Z0-9_]/g, '') || '_heartbeat'}
+                      </code>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                      Jalankan skrip ini di SQL Editor database target agar transaksi WAL PostgreSQL aktif 100%.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopyTargetSql}
+                  className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95 ${
+                    copiedSql
+                      ? 'bg-emerald-400 text-slate-950 ring-2 ring-emerald-300'
+                      : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 hover:shadow-emerald-500/20'
+                  }`}
+                  title="Salin skrip SQL untuk database target ini"
+                >
+                  {copiedSql ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>SQL Tersalin!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Salin SQL Target</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Preview Toggle & Details */}
+              <div className="pt-2 border-t border-emerald-900/40 flex items-center justify-between text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setShowSqlPreview(!showSqlPreview)}
+                  className="text-emerald-400 hover:text-emerald-300 font-mono flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <Code className="w-3 h-3" />
+                  <span>{showSqlPreview ? 'Sembunyikan Kode SQL' : 'Lihat Kode SQL Target'}</span>
+                  {showSqlPreview ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  PostgreSQL DDL & RLS (Aman)
+                </span>
+              </div>
+
+              {/* Code Preview Box */}
+              {showSqlPreview && (
+                <div className="mt-1 relative animate-in fade-in duration-200">
+                  <pre className="p-3 rounded-xl bg-slate-950 border border-emerald-500/20 text-emerald-300 font-mono text-[11px] leading-relaxed overflow-x-auto max-h-48 scrollbar-thin selection:bg-emerald-900 selection:text-white">
+                    {targetSql}
+                  </pre>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex items-center gap-2.5 font-sans">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span className="text-[11px] leading-relaxed">
+                <strong className="text-slate-200">Mode Dynamic Count:</strong> Sentinel membaca baris data tabel yang ada tanpa perlu membuat tabel baru.
+              </span>
+            </div>
+          )}
+
           {/* Notes */}
+
           <div>
             <label className="block text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-1.5">
               Catatan Proyek (Opsional)
