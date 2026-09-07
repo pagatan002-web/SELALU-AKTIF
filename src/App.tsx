@@ -354,19 +354,19 @@ export function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8">
-        {/* Hero Banner with Brutalism Glasses */}
+        {/* Hero Banner with Soft-Tactile Neo-Glass */}
         <section className="glass-brutal-panel rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
           <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold mb-3 shadow-[0_2px_10px_rgba(6,182,212,0.12)]">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Anti-Pause WAL Engine Active</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Jaga Seluruh Database Supabase <span className="text-cyan-400">Tetap Berdenyut</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight">
+                Jaga Seluruh Database Supabase <span className="bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">Tetap Berdenyut</span>
               </h2>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed">
                 Supabase Free Tier mematikan database setelah 7 hari inaktif. SELALU AKTIF mengeksekusi 
@@ -377,43 +377,43 @@ export function App() {
 
             {/* Quick Feature Badges Bento */}
             <div className="grid grid-cols-2 gap-3 w-full lg:w-auto font-mono text-xs">
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <div className="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-slate-700/80 shadow-xs flex items-center gap-2.5 transition-all">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
                   <HardDrive className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="text-slate-400 text-[10px] block">METODE</span>
-                  <span className="font-bold text-white">WAL Mutation</span>
+                  <span className="font-bold text-slate-100">WAL Mutation</span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+              <div className="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-slate-700/80 shadow-xs flex items-center gap-2.5 transition-all">
+                <div className="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0">
                   <Clock className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="text-slate-400 text-[10px] block">BATAS AMAN</span>
-                  <span className="font-bold text-white">&lt; 7 Hari</span>
+                  <span className="font-bold text-slate-100">&lt; 7 Hari</span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center shrink-0">
+              <div className="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-slate-700/80 shadow-xs flex items-center gap-2.5 transition-all">
+                <div className="w-8 h-8 rounded-xl bg-violet-500/15 border border-violet-500/30 text-violet-400 flex items-center justify-center shrink-0">
                   <Layers className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="text-slate-400 text-[10px] block">CLOUD CRON</span>
-                  <span className="font-bold text-white">GitHub Actions</span>
+                  <span className="font-bold text-slate-100">GitHub Actions</span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <div className="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-slate-700/80 shadow-xs flex items-center gap-2.5 transition-all">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
                   <Shield className="w-4 h-4" />
                 </div>
                 <div>
                   <span className="text-slate-400 text-[10px] block">STORAGE</span>
-                  <span className="font-bold text-white">Zero-Knowledge</span>
+                  <span className="font-bold text-slate-100">Zero-Knowledge</span>
                 </div>
               </div>
             </div>
@@ -431,7 +431,7 @@ export function App() {
                 placeholder="Cari proyek / tabel..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 text-xs font-mono"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400/80 focus:ring-1 focus:ring-cyan-400/30 text-xs font-mono transition-all"
               />
             </div>
 
@@ -440,7 +440,7 @@ export function App() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 focus:outline-none focus:border-cyan-400 text-xs font-mono"
+                className="px-3.5 py-2.5 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-200 focus:outline-none focus:border-cyan-400/80 focus:ring-1 focus:ring-cyan-400/30 text-xs font-mono cursor-pointer transition-all"
               >
                 <option value="all">Semua Status</option>
                 <option value="healthy">🟢 Aktif & Sehat</option>

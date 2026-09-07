@@ -56,9 +56,9 @@ export const ProjectCard: React.FC<Props> = ({
 
   return (
     <div className="glass-brutal-card rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between group">
-      {/* Decorative top corner accent glow */}
+      {/* Decorative dynamic ambient glow */}
       <div 
-        className={`absolute top-0 right-0 w-32 h-32 blur-3xl -z-10 transition-opacity duration-300 opacity-20 group-hover:opacity-40 pointer-events-none ${
+        className={`absolute top-0 right-0 w-36 h-36 blur-3xl -z-10 transition-opacity duration-300 opacity-15 group-hover:opacity-30 pointer-events-none ${
           project.status === 'healthy' ? 'bg-emerald-500' :
           project.status === 'warning' ? 'bg-amber-500' :
           project.status === 'paused' ? 'bg-rose-500' : 'bg-cyan-500'
@@ -69,17 +69,17 @@ export const ProjectCard: React.FC<Props> = ({
         {/* Header: Project Name & Health Badge */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
-            <h3 className="text-lg font-extrabold text-white tracking-tight truncate group-hover:text-cyan-300 transition-colors">
+            <h3 className="text-lg font-black text-slate-100 tracking-tight truncate group-hover:text-cyan-300 transition-colors">
               {project.name}
             </h3>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-slate-400 font-mono truncate max-w-[200px] sm:max-w-[260px]">
+              <span className="text-xs text-slate-400 font-mono truncate max-w-[180px] sm:max-w-[240px]">
                 {project.url.replace(/^https?:\/\//, '')}
               </span>
               <button
                 onClick={handleCopyUrl}
                 title="Salin Supabase URL"
-                className="text-slate-500 hover:text-cyan-400 p-1 rounded transition-colors"
+                className="text-slate-500 hover:text-cyan-300 p-1 rounded-md hover:bg-slate-800/60 transition-colors cursor-pointer"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               </button>
@@ -87,8 +87,8 @@ export const ProjectCard: React.FC<Props> = ({
                 href={project.url}
                 target="_blank"
                 rel="noreferrer"
-                className="text-slate-500 hover:text-cyan-400 p-1 rounded transition-colors"
-                title="Buka Supabase URL"
+                className="text-slate-500 hover:text-cyan-300 p-1 rounded-md hover:bg-slate-800/60 transition-colors cursor-pointer"
+                title="Buka Supabase Dashboard"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
@@ -99,17 +99,17 @@ export const ProjectCard: React.FC<Props> = ({
 
         {/* Badges / Metadata Tags */}
         <div className="flex flex-wrap items-center gap-2 my-3">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/80 border border-slate-700/60 text-xs font-mono text-slate-300">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800 text-xs font-mono text-slate-300">
             <Database className="w-3 h-3 text-cyan-400" />
             <span className="text-slate-400">Tabel:</span>
             <span className="font-bold text-slate-200">{project.targetTable || '_heartbeat'}</span>
           </div>
 
           <div 
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md border text-[11px] font-mono font-semibold ${
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-semibold ${
               project.targetMode === 'wal_mutation'
-                ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60'
-                : 'bg-cyan-950/40 text-cyan-300 border-cyan-800/60'
+                ? 'bg-emerald-950/30 text-emerald-300 border-emerald-500/30'
+                : 'bg-cyan-950/30 text-cyan-300 border-cyan-500/30'
             }`}
           >
             {project.targetMode === 'wal_mutation' ? '⚡ WAL Mutation' : '🔍 Dynamic Count'}
@@ -117,11 +117,11 @@ export const ProjectCard: React.FC<Props> = ({
         </div>
 
         {/* Stats Strip: Last Ping & Latency */}
-        <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80 mb-4 font-mono text-xs">
+        <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/70 mb-4 font-mono text-xs">
           <div className="flex items-center gap-2">
             <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <div className="truncate">
-              <span className="text-[10px] text-slate-500 block leading-tight">TERAKHIR DISAPA</span>
+              <span className="text-[10px] text-slate-400 block leading-tight">TERAKHIR DISAPA</span>
               <span className="text-slate-200 font-semibold">{getRelativeTime(project.lastPingAt)}</span>
             </div>
           </div>
@@ -129,7 +129,7 @@ export const ProjectCard: React.FC<Props> = ({
           <div className="flex items-center gap-2 border-l border-slate-800/80 pl-2">
             <Activity className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
             <div className="truncate">
-              <span className="text-[10px] text-slate-500 block leading-tight">LATENSI / KODE</span>
+              <span className="text-[10px] text-slate-400 block leading-tight">LATENSI / KODE</span>
               <span className="text-slate-200 font-semibold">
                 {project.lastLatencyMs ? `${project.lastLatencyMs} ms` : '-'}
                 {project.lastStatusCode ? ` (${project.lastStatusCode})` : ''}
@@ -155,7 +155,7 @@ export const ProjectCard: React.FC<Props> = ({
             )}
             {project.notes && (
               <div className="text-slate-400 pt-1 border-t border-slate-800/60">
-                <span className="text-slate-500 block text-[10px]">CATATAN:</span>
+                <span className="text-slate-400 block text-[10px]">CATATAN:</span>
                 <p className="text-slate-300 font-sans">{project.notes}</p>
               </div>
             )}
@@ -167,7 +167,7 @@ export const ProjectCard: React.FC<Props> = ({
       <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 font-mono transition-colors py-1.5 px-2 rounded-lg hover:bg-slate-800/60"
+          className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1 font-mono transition-colors py-1.5 px-2 rounded-lg hover:bg-slate-800/60 cursor-pointer"
         >
           {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           <span>{expanded ? 'Tutup' : 'Detail'}</span>
@@ -177,7 +177,7 @@ export const ProjectCard: React.FC<Props> = ({
           <button
             onClick={() => onEdit(project)}
             title="Edit Proyek"
-            className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:scale-105 active:scale-95"
+            className="p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-xs"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
@@ -185,7 +185,7 @@ export const ProjectCard: React.FC<Props> = ({
           <button
             onClick={() => onDelete(project.id)}
             title="Hapus Proyek"
-            className="p-2 rounded-lg bg-slate-800/80 hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-slate-700/60 hover:border-rose-800/60 transition-all hover:scale-105 active:scale-95"
+            className="p-2 rounded-xl bg-slate-900/80 hover:bg-rose-950/50 text-slate-400 hover:text-rose-300 border border-slate-800 hover:border-rose-800/50 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-xs"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -193,7 +193,7 @@ export const ProjectCard: React.FC<Props> = ({
           <button
             onClick={() => onPing(project)}
             disabled={isPinging}
-            className={`brutal-btn-emerald py-1.5 px-3.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+            className="brutal-btn-emerald py-1.5 px-3.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-extrabold"
           >
             <Zap className={`w-3.5 h-3.5 ${isPinging ? 'animate-spin' : ''}`} />
             <span>{isPinging ? 'Menyapa...' : 'Sapa Sekarang'}</span>

@@ -9,49 +9,49 @@ export const HealthStatusBadge: React.FC<Props> = ({ status, size = 'md' }) => {
   const config = {
     healthy: {
       label: 'AKTIF & SEHAT',
-      bg: 'bg-emerald-500/15',
-      text: 'text-emerald-400',
-      border: 'border-emerald-500/50',
-      shadow: 'shadow-[2px_2px_0px_#10b981]',
+      bg: 'bg-emerald-500/12',
+      text: 'text-emerald-300',
+      border: 'border-emerald-500/40',
+      shadow: 'shadow-[0_2px_10px_rgba(16,185,129,0.2)]',
       dotBg: 'bg-emerald-400',
       pingBg: 'bg-emerald-400',
     },
     warning: {
       label: 'PERLU PERHATIAN',
-      bg: 'bg-amber-500/15',
-      text: 'text-amber-400',
-      border: 'border-amber-500/50',
-      shadow: 'shadow-[2px_2px_0px_#f59e0b]',
+      bg: 'bg-amber-500/12',
+      text: 'text-amber-300',
+      border: 'border-amber-500/40',
+      shadow: 'shadow-[0_2px_10px_rgba(245,158,11,0.2)]',
       dotBg: 'bg-amber-400',
       pingBg: 'bg-amber-400',
     },
     paused: {
       label: 'TERHENTI / ERROR',
-      bg: 'bg-rose-500/15',
-      text: 'text-rose-400',
-      border: 'border-rose-500/50',
-      shadow: 'shadow-[2px_2px_0px_#f43f5e]',
-      dotBg: 'bg-rose-500',
+      bg: 'bg-rose-500/12',
+      text: 'text-rose-300',
+      border: 'border-rose-500/40',
+      shadow: 'shadow-[0_2px_10px_rgba(244,63,94,0.2)]',
+      dotBg: 'bg-rose-400',
       pingBg: 'bg-rose-400',
     },
     unknown: {
       label: 'BELUM DISAPA',
-      bg: 'bg-slate-700/20',
-      text: 'text-slate-400',
-      border: 'border-slate-600/50',
-      shadow: 'shadow-[2px_2px_0px_#64748b]',
+      bg: 'bg-slate-800/40',
+      text: 'text-slate-300',
+      border: 'border-slate-700/50',
+      shadow: 'shadow-[0_2px_8px_rgba(100,116,139,0.1)]',
       dotBg: 'bg-slate-400',
       pingBg: 'bg-slate-400',
     },
   }[status];
 
   const sizeClasses = size === 'sm' 
-    ? 'px-2 py-0.5 text-[10px] gap-1.5' 
-    : 'px-2.5 py-1 text-xs gap-2';
+    ? 'px-2.5 py-0.5 text-[10px] gap-1.5' 
+    : 'px-3 py-1 text-xs gap-2';
 
   return (
     <span
-      className={`inline-flex items-center font-mono font-bold tracking-wider rounded-md border ${config.bg} ${config.text} ${config.border} ${config.shadow} ${sizeClasses}`}
+      className={`inline-flex items-center font-mono font-bold tracking-wider rounded-full border backdrop-blur-md ${config.bg} ${config.text} ${config.border} ${config.shadow} ${sizeClasses} transition-all`}
     >
       <span className="relative flex h-2 w-2">
         {status !== 'unknown' && (

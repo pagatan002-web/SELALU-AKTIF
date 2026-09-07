@@ -41,9 +41,9 @@ export const WelcomeFloatingBanner: React.FC<Props> = ({ onStartTour }) => {
 
   return (
     <div className="fixed bottom-6 right-4 sm:right-6 z-40 max-w-sm w-[calc(100vw-2rem)] animate-in slide-in-from-bottom-5 fade-in duration-300">
-      <div className="glass-brutal-panel rounded-3xl p-5 border-2 border-cyan-500/50 shadow-brutal-cyan relative overflow-hidden">
+      <div className="glass-brutal-panel rounded-3xl p-5 border border-cyan-500/40 shadow-[0_12px_32px_rgba(0,0,0,0.5),0_0_24px_rgba(6,182,212,0.15)] relative overflow-hidden">
         {/* Glow effect */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none -z-10" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none -z-10" />
 
         <div className="flex items-start justify-between gap-2">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono font-bold">
@@ -53,7 +53,7 @@ export const WelcomeFloatingBanner: React.FC<Props> = ({ onStartTour }) => {
 
           <button
             onClick={handleDismiss}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
             title="Tutup pemberitahuan"
           >
             <X className="w-4 h-4" />
@@ -61,7 +61,7 @@ export const WelcomeFloatingBanner: React.FC<Props> = ({ onStartTour }) => {
         </div>
 
         <div className="mt-2.5">
-          <h4 className="text-sm font-extrabold text-white flex items-center gap-1.5">
+          <h4 className="text-sm font-extrabold text-slate-100 flex items-center gap-1.5">
             <span>Panduan Memulai Cepat</span>
             <span className="text-xs">👋</span>
           </h4>
@@ -95,7 +95,7 @@ export const WelcomeFloatingBanner: React.FC<Props> = ({ onStartTour }) => {
           <button
             type="button"
             onClick={handleStart}
-            className="brutal-btn-primary px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer"
+            className="brutal-btn-primary px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer font-extrabold"
           >
             <span>Buka Panduan</span>
             <ArrowRight className="w-3.5 h-3.5 text-black" />
