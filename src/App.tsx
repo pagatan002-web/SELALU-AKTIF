@@ -533,6 +533,7 @@ export function App() {
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
         projects={projects}
+        masterConfig={masterConfig}
       />
 
       <SqlSnippetModal
