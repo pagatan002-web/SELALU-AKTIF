@@ -1,6 +1,6 @@
 import type { SentinelStats } from '../types/sentinel';
 import type { MasterHubConfig } from '../lib/masterHub';
-import { Activity, Plus, Zap, GitBranch, Code, Server } from 'lucide-react';
+import { Activity, Plus, Zap, GitBranch, Code, Server, HelpCircle } from 'lucide-react';
 
 interface Props {
   stats: SentinelStats;
@@ -11,6 +11,7 @@ interface Props {
   onOpenExportModal: () => void;
   onOpenSqlModal: () => void;
   onOpenMasterHubModal: () => void;
+  onOpenOnboardingModal: () => void;
 }
 
 export const Navbar: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const Navbar: React.FC<Props> = ({
   onOpenExportModal,
   onOpenSqlModal,
   onOpenMasterHubModal,
+  onOpenOnboardingModal,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-slate-950/70 border-b-2 border-slate-800/80 px-4 sm:px-8 py-3.5 transition-all">
@@ -122,6 +124,15 @@ export const Navbar: React.FC<Props> = ({
               <span className="hidden sm:inline">Master Hub</span>
             </button>
           )}
+
+          <button
+            onClick={onOpenOnboardingModal}
+            className="brutal-btn-secondary px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer text-cyan-300 border-cyan-500/40 hover:border-cyan-400"
+            title="Buka Panduan Langkah Penggunaan"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+            <span className="hidden sm:inline">Panduan</span>
+          </button>
 
           <button
             onClick={onOpenSqlModal}

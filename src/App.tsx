@@ -26,6 +26,8 @@ import { AddProjectModal } from './components/AddProjectModal';
 import { ExportSecretModal } from './components/ExportSecretModal';
 import { SqlSnippetModal } from './components/SqlSnippetModal';
 import { MasterHubModal } from './components/MasterHubModal';
+import { OnboardingGuideModal } from './components/OnboardingGuideModal';
+import { WelcomeFloatingBanner } from './components/WelcomeFloatingBanner';
 import { ActivityLogTable } from './components/ActivityLogTable';
 import { 
   Shield, 
@@ -53,6 +55,7 @@ export function App() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
   const [isMasterHubModalOpen, setIsMasterHubModalOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
 
   // Master Hub Config
   const [masterConfig, setMasterConfig] = useState<MasterHubConfig | null>(() => getStoredMasterHub());
@@ -273,6 +276,7 @@ export function App() {
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenSqlModal={() => setIsSqlModalOpen(true)}
         onOpenMasterHubModal={() => setIsMasterHubModalOpen(true)}
+        onOpenOnboardingModal={() => setIsOnboardingOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -475,6 +479,19 @@ export function App() {
         localProjects={projects}
         onOpenSqlModal={() => setIsSqlModalOpen(true)}
       />
+
+      <OnboardingGuideModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onOpenSqlModal={() => setIsSqlModalOpen(true)}
+        onOpenMasterHubModal={() => setIsMasterHubModalOpen(true)}
+        onOpenAddModal={() => {
+          setEditingProject(null);
+          setIsAddModalOpen(true);
+        }}
+      />
+
+      <WelcomeFloatingBanner onStartTour={() => setIsOnboardingOpen(true)} />
     </div>
   );
 }
