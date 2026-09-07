@@ -1,0 +1,40 @@
+name: SELALU AKTIF - Heartbeat Sentinel Runner
+
+on:
+  schedule:
+    # Berjalan setiap 3 hari sekali pada jam 04:15 UTC (12:15 WITA)
+    - cron: '15 4 */3 * *'
+  workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub UI
+
+jobs:
+  heartbeat:
+    name: Supabase Organic WAL Heartbeat
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Organic Jitter Delay
+        run: |
+          # Jitter delay acak (15 - 90 detik) agar waktu eksekusi tampak alami
+          DELAY=$((15 + RANDOM % 75))
+          echo "Menunggu ${DELAY} detik (organic jitter delay)..."
+          sleep ${DELAY}
+
+      - name: Execute Sentinel WAL Transactions
+        env:
+          MASTER_SUPABASE_URL: ${{ secrets.MASTER_SUPABASE_URL }}
+          MASTER_SUPABASE_KEY: ${{ secrets.MASTER_SUPABASE_KEY }}
+          SENTINEL_PROJECTS: ${{ secrets.SENTINEL_PROJECTS }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          node scripts/sentinel-cron.mjs
