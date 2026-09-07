@@ -55,7 +55,9 @@ export function App() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
   const [isMasterHubModalOpen, setIsMasterHubModalOpen] = useState(false);
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
+    return localStorage.getItem('selalu_aktif_dont_show_guide_again') !== 'true';
+  });
 
   // Master Hub Config
   const [masterConfig, setMasterConfig] = useState<MasterHubConfig | null>(() => getStoredMasterHub());

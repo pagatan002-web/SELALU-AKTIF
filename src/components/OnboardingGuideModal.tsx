@@ -35,6 +35,8 @@ interface StepInfo {
   onAction?: () => void;
 }
 
+export const DONT_SHOW_GUIDE_KEY = 'selalu_aktif_dont_show_guide_again';
+
 export const OnboardingGuideModal: React.FC<Props> = ({
   isOpen,
   onClose,
@@ -43,12 +45,24 @@ export const OnboardingGuideModal: React.FC<Props> = ({
   onOpenAddModal,
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setCurrentStep(0);
+      const isSaved = localStorage.getItem(DONT_SHOW_GUIDE_KEY) === 'true';
+      setDontShowAgain(isSaved);
     }
   }, [isOpen]);
+
+  const handleSavePreferenceAndClose = () => {
+    if (dontShowAgain) {
+      localStorage.setItem(DONT_SHOW_GUIDE_KEY, 'true');
+    } else {
+      localStorage.removeItem(DONT_SHOW_GUIDE_KEY);
+    }
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -153,7 +167,7 @@ export const OnboardingGuideModal: React.FC<Props> = ({
             colors: ['#06b6d4', '#10b981', '#f59e0b', '#8b5cf6'],
           });
         } catch {}
-        onClose();
+        handleSavePreferenceAndClose();
       },
     },
   ];
@@ -171,7 +185,7 @@ export const OnboardingGuideModal: React.FC<Props> = ({
           origin: { y: 0.3 },
         });
       } catch {}
-      onClose();
+      handleSavePreferenceAndClose();
     }
   };
 
@@ -205,7 +219,7 @@ export const OnboardingGuideModal: React.FC<Props> = ({
           </div>
 
           <button
-            onClick={onClose}
+            onClick={handleSavePreferenceAndClose}
             className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
             title="Tutup panduan"
           >
@@ -299,6 +313,19 @@ export const OnboardingGuideModal: React.FC<Props> = ({
               <ChevronRight className="w-3.5 h-3.5 text-black" />
             </button>
           </div>
+        </div>
+
+        {/* Checkbox: Jangan tampilkan lagi secara otomatis */}
+        <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between">
+          <label className="flex items-center gap-2 cursor-pointer text-[11px] text-slate-400 hover:text-slate-200 select-none font-mono">
+            <input
+              type="checkbox"
+              checked={dontShowAgain}
+              onChange={(e) => setDontShowAgain(e.target.checked)}
+              className="w-4 h-4 rounded bg-slate-900 border-2 border-slate-700 text-cyan-500 focus:ring-0 cursor-pointer accent-cyan-500"
+            />
+            <span>Jangan tampilkan panduan ini lagi secara otomatis</span>
+          </label>
         </div>
       </div>
     </div>
