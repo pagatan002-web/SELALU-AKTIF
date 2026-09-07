@@ -11,15 +11,21 @@ import {
   X, 
   Code, 
   Plus, 
-  Zap
+  Zap,
+  Copy,
+  Check,
+  ExternalLink
 } from 'lucide-react';
+import { MASTER_HUB_SQL } from '../lib/sqlScripts';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onOpenSqlModal: () => void;
-  onOpenMasterHubModal: () => void;
-  onOpenAddModal: () => void;
+  stepIndex?: number;
+  onStepChange?: (step: number) => void;
+  onOpenSqlModal: (currentStepIndex: number) => void;
+  onOpenMasterHubModal: (currentStepIndex: number) => void;
+  onOpenAddModal: (currentStepIndex: number) => void;
 }
 
 interface StepInfo {
@@ -40,20 +46,38 @@ export const DONT_SHOW_GUIDE_KEY = 'selalu_aktif_dont_show_guide_again';
 export const OnboardingGuideModal: React.FC<Props> = ({
   isOpen,
   onClose,
+  stepIndex = 0,
+  onStepChange,
   onOpenSqlModal,
   onOpenMasterHubModal,
   onOpenAddModal,
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [internalStep, setInternalStep] = useState(stepIndex);
   const [dontShowAgain, setDontShowAgain] = useState(false);
+  const [copiedSql, setCopiedSql] = useState(false);
+
+  const currentStep = onStepChange ? stepIndex : internalStep;
+
+  const handleStepChange = (nextStep: number) => {
+    if (onStepChange) {
+      onStepChange(nextStep);
+    } else {
+      setInternalStep(nextStep);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentStep(0);
       const isSaved = localStorage.getItem(DONT_SHOW_GUIDE_KEY) === 'true';
       setDontShowAgain(isSaved);
     }
   }, [isOpen]);
+
+  const handleQuickCopySql = () => {
+    navigator.clipboard.writeText(MASTER_HUB_SQL);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 3000);
+  };
 
   const handleSavePreferenceAndClose = () => {
     if (dontShowAgain) {
@@ -90,15 +114,14 @@ export const OnboardingGuideModal: React.FC<Props> = ({
         'Pilih salah satu proyek Supabase Anda untuk dijadikan Master Hub penyimpan daftar proyek terpusat.',
       icon: <Code className="w-8 h-8 text-emerald-400" />,
       detailPoints: [
-        'Buka menu SQL Snippet pada aplikasi ini.',
-        'Salin skrip SQL "Master Hub (sentinel_registry)".',
+        'Klik tombol salin di bawah ini (atau buka halaman SQL Snippet).',
         'Tempelkan ke Supabase SQL Editor database Master Anda lalu klik RUN.',
+        'Setelah tabel terbentuk, klik tombol "Lanjut" ke langkah berikutnya.',
       ],
-      actionLabel: 'Buka SQL Snippet Sekarang',
-      actionIcon: <Code className="w-4 h-4" />,
+      actionLabel: 'Atau Buka Halaman SQL Snippet Lengkap',
+      actionIcon: <ExternalLink className="w-4 h-4" />,
       onAction: () => {
-        onClose();
-        onOpenSqlModal();
+        onOpenSqlModal(1);
       },
     },
     {
@@ -110,15 +133,14 @@ export const OnboardingGuideModal: React.FC<Props> = ({
         'Sambungkan dashboard ini ke database Master Anda agar seluruh penambahan proyek tersimpan otomatis.',
       icon: <Server className="w-8 h-8 text-violet-400" />,
       detailPoints: [
-        'Klik tombol "Master Hub" di navbar atas.',
+        'Klik tombol "Buka Pengaturan Master Hub" di bawah.',
         'Masukkan URL Supabase dan Anon Key database Master Anda.',
-        'Klik tombol "Uji Koneksi" & "Simpan & Hubungkan".',
+        'Klik tombol "Uji Koneksi" & "Simpan & Lanjut Panduan".',
       ],
       actionLabel: 'Buka Pengaturan Master Hub',
       actionIcon: <Server className="w-4 h-4" />,
       onAction: () => {
-        onClose();
-        onOpenMasterHubModal();
+        onOpenMasterHubModal(2);
       },
     },
     {
@@ -130,16 +152,15 @@ export const OnboardingGuideModal: React.FC<Props> = ({
         'Masukkan proyek Supabase lain yang ingin Anda jaga agar tidak pernah tidur (KAWAL, SIMDIK, BAKUMPUL, dll.).',
       icon: <Database className="w-8 h-8 text-amber-400" />,
       detailPoints: [
-        'Klik tombol "+ Tambah Proyek Baru".',
-        'Isi Nama Proyek, URL Supabase, dan Anon Key.',
+        'Klik tombol "Tambah Proyek Pertama" di bawah.',
+        'Isi Nama Proyek, URL Supabase, dan Anon Key proyek target.',
         'Gunakan tombol "Uji Koneksi (Test)" sebelum menyimpan.',
-        'Pilih metode transaksi (WAL Mutation atau Dynamic Count).',
+        'Data proyek akan otomatis tersinkronisasi ke Master Hub Anda di cloud.',
       ],
       actionLabel: 'Tambah Proyek Pertama',
       actionIcon: <Plus className="w-4 h-4" />,
       onAction: () => {
-        onClose();
-        onOpenAddModal();
+        onOpenAddModal(3);
       },
     },
     {
@@ -172,11 +193,11 @@ export const OnboardingGuideModal: React.FC<Props> = ({
     },
   ];
 
-  const current = steps[currentStep];
+  const current = steps[currentStep] || steps[0];
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      handleStepChange(currentStep + 1);
     } else {
       try {
         confetti({
@@ -191,7 +212,7 @@ export const OnboardingGuideModal: React.FC<Props> = ({
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      handleStepChange(currentStep - 1);
     }
   };
 
@@ -258,13 +279,52 @@ export const OnboardingGuideModal: React.FC<Props> = ({
             </div>
           </div>
 
+          {/* Quick 1-Click Copy Box for Step 2 (Master Hub SQL) */}
+          {currentStep === 1 && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/50 via-slate-900 to-slate-950 border-2 border-emerald-500/50 shadow-brutal space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                  <Code className="w-4 h-4" />
+                  <span>Skrip SQL Master Hub (sentinel_registry)</span>
+                </div>
+                <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
+                  1-KLIK SALIN
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                Salin langsung dari sini tanpa perlu meninggalkan panduan:
+              </p>
+              <button
+                type="button"
+                onClick={handleQuickCopySql}
+                className="w-full brutal-btn-emerald py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer font-extrabold shadow-sm transition-all"
+              >
+                {copiedSql ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-black" />}
+                <span>{copiedSql ? '✅ Skrip SQL Master Hub Berhasil Disalin!' : '📋 Salin Skrip SQL Master Hub Sekarang'}</span>
+              </button>
+              {copiedSql ? (
+                <p className="text-[11px] text-emerald-300 font-mono text-center animate-in fade-in py-1">
+                  Buka tab Supabase SQL Editor Master &rarr; Tempel (Ctrl+V) &rarr; RUN. Lalu klik <strong>Lanjut &gt;</strong> di bawah!
+                </p>
+              ) : (
+                <p className="text-[10px] text-slate-400 text-center font-mono">
+                  Setelah disalin &amp; di-RUN di Supabase Master, klik <strong>Lanjut &gt;</strong>
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Contextual Action Button (if any) */}
           {current.actionLabel && current.onAction && (
             <div className="pt-1">
               <button
                 type="button"
                 onClick={current.onAction}
-                className="w-full brutal-btn-emerald py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
+                className={`w-full py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                  currentStep === 1
+                    ? 'brutal-btn-secondary border-slate-700 text-slate-300 hover:text-white'
+                    : 'brutal-btn-emerald font-extrabold'
+                }`}
               >
                 {current.actionIcon}
                 <span className="font-extrabold">{current.actionLabel}</span>
@@ -280,7 +340,7 @@ export const OnboardingGuideModal: React.FC<Props> = ({
             {steps.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentStep(idx)}
+                onClick={() => handleStepChange(idx)}
                 className={`h-2 rounded-full transition-all cursor-pointer ${
                   idx === currentStep
                     ? 'w-6 bg-cyan-400'

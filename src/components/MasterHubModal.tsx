@@ -15,7 +15,9 @@ import {
   ArrowRightLeft, 
   Unplug, 
   Code, 
-  HelpCircle
+  HelpCircle,
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 
 interface Props {
@@ -25,6 +27,8 @@ interface Props {
   onConfigChange: (config: MasterHubConfig | null) => void;
   localProjects: SupabaseProject[];
   onOpenSqlModal: () => void;
+  fromTour?: boolean;
+  onContinueTour?: () => void;
 }
 
 export const MasterHubModal: React.FC<Props> = ({
@@ -34,6 +38,8 @@ export const MasterHubModal: React.FC<Props> = ({
   onConfigChange,
   localProjects,
   onOpenSqlModal,
+  fromTour = false,
+  onContinueTour,
 }) => {
   const [url, setUrl] = useState('');
   const [anonKey, setAnonKey] = useState('');
@@ -89,7 +95,11 @@ export const MasterHubModal: React.FC<Props> = ({
 
     saveMasterHub(newConfig);
     onConfigChange(newConfig);
-    onClose();
+    if (fromTour && onContinueTour) {
+      onContinueTour();
+    } else {
+      onClose();
+    }
   };
 
   const handleDisconnect = () => {
@@ -146,6 +156,28 @@ export const MasterHubModal: React.FC<Props> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Tour Status Banner if opened from onboarding */}
+        {fromTour && (
+          <div className="mt-4 p-3 rounded-2xl bg-gradient-to-r from-violet-950/60 via-slate-900 to-cyan-950/60 border border-violet-500/40 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-violet-400 shrink-0" />
+              <span className="text-slate-200">
+                <strong className="text-violet-300">Mode Panduan:</strong> Langkah 3 - Hubungkan Dashboard ini ke Database Master Anda.
+              </span>
+            </div>
+            {onContinueTour && (
+              <button
+                type="button"
+                onClick={onContinueTour}
+                className="shrink-0 px-3 py-1 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-300 hover:bg-violet-500/30 text-[11px] font-bold flex items-center gap-1 transition-colors"
+              >
+                <span>Lanjut Panduan</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Informative Value Proposition */}
         <div className="mt-5 p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 space-y-1.5 font-sans">
@@ -206,19 +238,32 @@ export const MasterHubModal: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={handleDisconnect}
-                className="text-rose-400 hover:text-rose-300 flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-rose-950/40 border border-rose-900/60 transition-colors"
+                className="text-rose-400 hover:text-rose-300 flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-rose-950/40 border border-rose-900/60 transition-colors text-xs"
               >
                 <Unplug className="w-4 h-4" />
                 <span>Putuskan Master Hub</span>
               </button>
 
-              <button
-                type="button"
-                onClick={onClose}
-                className="brutal-btn-secondary px-5 py-2 rounded-xl text-xs cursor-pointer"
-              >
-                Tutup
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="brutal-btn-secondary px-4 py-2 rounded-xl text-xs cursor-pointer"
+                >
+                  Tutup
+                </button>
+
+                {fromTour && onContinueTour && (
+                  <button
+                    type="button"
+                    onClick={onContinueTour}
+                    className="brutal-btn-primary px-5 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer font-bold"
+                  >
+                    <span>Lanjut Panduan (Langkah 4)</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-black" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -323,9 +368,10 @@ export const MasterHubModal: React.FC<Props> = ({
                   type="button"
                   onClick={handleConnect}
                   disabled={!url.trim() || !anonKey.trim()}
-                  className="w-1/2 sm:w-auto brutal-btn-primary px-5 py-2.5 rounded-xl text-xs cursor-pointer disabled:opacity-50"
+                  className="w-1/2 sm:w-auto brutal-btn-primary px-5 py-2.5 rounded-xl text-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 font-bold"
                 >
-                  Simpan & Hubungkan
+                  <span>{fromTour ? 'Simpan & Lanjut Panduan' : 'Simpan & Hubungkan'}</span>
+                  {fromTour && <ArrowRight className="w-3.5 h-3.5 text-black" />}
                 </button>
               </div>
             </div>

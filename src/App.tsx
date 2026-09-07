@@ -58,6 +58,77 @@ export function App() {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     return localStorage.getItem('selalu_aktif_dont_show_guide_again') !== 'true';
   });
+  const [guideStep, setGuideStep] = useState(0);
+  const [tourReturnStep, setTourReturnStep] = useState<number | null>(null);
+
+  // Tour Transition Handlers
+  const handleOpenSqlFromTour = (currentStep: number) => {
+    setTourReturnStep(currentStep);
+    setIsOnboardingOpen(false);
+    setIsSqlModalOpen(true);
+  };
+
+  const handleOpenMasterHubFromTour = (currentStep: number) => {
+    setTourReturnStep(currentStep);
+    setIsOnboardingOpen(false);
+    setIsMasterHubModalOpen(true);
+  };
+
+  const handleOpenAddFromTour = (currentStep: number) => {
+    setTourReturnStep(currentStep);
+    setIsOnboardingOpen(false);
+    setEditingProject(null);
+    setIsAddModalOpen(true);
+  };
+
+  const handleContinueTourFromSql = () => {
+    setIsSqlModalOpen(false);
+    setGuideStep(2); // Step 3: Hubungkan Master Hub
+    setTourReturnStep(null);
+    setIsOnboardingOpen(true);
+  };
+
+  const handleContinueTourFromMasterHub = () => {
+    setIsMasterHubModalOpen(false);
+    setGuideStep(3); // Step 4: Daftarkan Target DB
+    setTourReturnStep(null);
+    setIsOnboardingOpen(true);
+  };
+
+  const handleContinueTourFromAdd = () => {
+    setIsAddModalOpen(false);
+    setGuideStep(4); // Step 5: GitHub Actions
+    setTourReturnStep(null);
+    setIsOnboardingOpen(true);
+  };
+
+  const handleCloseSqlModal = () => {
+    setIsSqlModalOpen(false);
+    if (tourReturnStep !== null) {
+      setGuideStep(tourReturnStep);
+      setTourReturnStep(null);
+      setIsOnboardingOpen(true);
+    }
+  };
+
+  const handleCloseMasterHubModal = () => {
+    setIsMasterHubModalOpen(false);
+    if (tourReturnStep !== null) {
+      setGuideStep(tourReturnStep);
+      setTourReturnStep(null);
+      setIsOnboardingOpen(true);
+    }
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+    setEditingProject(null);
+    if (tourReturnStep !== null) {
+      setGuideStep(tourReturnStep);
+      setTourReturnStep(null);
+      setIsOnboardingOpen(true);
+    }
+  };
 
   // Master Hub Config
   const [masterConfig, setMasterConfig] = useState<MasterHubConfig | null>(() => getStoredMasterHub());
@@ -451,12 +522,11 @@ export function App() {
       {/* Modals */}
       <AddProjectModal
         isOpen={isAddModalOpen}
-        onClose={() => {
-          setIsAddModalOpen(false);
-          setEditingProject(null);
-        }}
+        onClose={handleCloseAddModal}
         onSave={handleSaveProject}
         initialProject={editingProject}
+        fromTour={tourReturnStep !== null}
+        onContinueTour={handleContinueTourFromAdd}
       />
 
       <ExportSecretModal
@@ -467,12 +537,14 @@ export function App() {
 
       <SqlSnippetModal
         isOpen={isSqlModalOpen}
-        onClose={() => setIsSqlModalOpen(false)}
+        onClose={handleCloseSqlModal}
+        fromTour={tourReturnStep !== null}
+        onContinueTour={handleContinueTourFromSql}
       />
 
       <MasterHubModal
         isOpen={isMasterHubModalOpen}
-        onClose={() => setIsMasterHubModalOpen(false)}
+        onClose={handleCloseMasterHubModal}
         currentConfig={masterConfig}
         onConfigChange={(newConf) => {
           setMasterConfig(newConf);
@@ -480,17 +552,21 @@ export function App() {
         }}
         localProjects={projects}
         onOpenSqlModal={() => setIsSqlModalOpen(true)}
+        fromTour={tourReturnStep !== null}
+        onContinueTour={handleContinueTourFromMasterHub}
       />
 
       <OnboardingGuideModal
         isOpen={isOnboardingOpen}
-        onClose={() => setIsOnboardingOpen(false)}
-        onOpenSqlModal={() => setIsSqlModalOpen(true)}
-        onOpenMasterHubModal={() => setIsMasterHubModalOpen(true)}
-        onOpenAddModal={() => {
-          setEditingProject(null);
-          setIsAddModalOpen(true);
+        stepIndex={guideStep}
+        onStepChange={setGuideStep}
+        onClose={() => {
+          setIsOnboardingOpen(false);
+          setTourReturnStep(null);
         }}
+        onOpenSqlModal={handleOpenSqlFromTour}
+        onOpenMasterHubModal={handleOpenMasterHubFromTour}
+        onOpenAddModal={handleOpenAddFromTour}
       />
 
       <WelcomeFloatingBanner onStartTour={() => setIsOnboardingOpen(true)} />

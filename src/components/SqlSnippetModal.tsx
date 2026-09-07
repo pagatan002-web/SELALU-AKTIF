@@ -1,106 +1,27 @@
 import { useState } from 'react';
-import { X, Copy, Check, Code, Sparkles, Server, Database } from 'lucide-react';
+import { X, Copy, Check, Code, Sparkles, Server, Database, ArrowRight } from 'lucide-react';
+import { MASTER_HUB_SQL, TARGET_DB_SQL } from '../lib/sqlScripts';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  fromTour?: boolean;
+  onContinueTour?: () => void;
 }
 
-export const SqlSnippetModal: React.FC<Props> = ({ isOpen, onClose }) => {
+export const SqlSnippetModal: React.FC<Props> = ({ 
+  isOpen, 
+  onClose,
+  fromTour = false,
+  onContinueTour,
+}) => {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'master' | 'target'>('master');
 
   if (!isOpen) return null;
 
-  const masterHubSql = `-- =======================================================
--- MASTER HUB CENTRAL: Tabel Registry Proyek & Log Sentral
--- Jalankan di: Supabase Master DB -> SQL Editor -> New Query
--- =======================================================
-
--- 1. Buat tabel registry seluruh proyek Supabase Anda
-CREATE TABLE IF NOT EXISTS public.sentinel_registry (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  url TEXT NOT NULL,
-  anon_key TEXT NOT NULL,
-  service_role_key TEXT,
-  target_table TEXT DEFAULT '_heartbeat',
-  target_mode TEXT DEFAULT 'wal_mutation',
-  status TEXT DEFAULT 'healthy',
-  last_ping_at TIMESTAMPTZ,
-  last_latency_ms INTEGER,
-  last_status_code INTEGER,
-  last_status_text TEXT,
-  last_error TEXT,
-  notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 2. Buat tabel riwayat log transaksi terpusat
-CREATE TABLE IF NOT EXISTS public.sentinel_logs (
-  id TEXT PRIMARY KEY,
-  project_id TEXT,
-  project_name TEXT,
-  success BOOLEAN DEFAULT TRUE,
-  status_code INTEGER,
-  latency_ms INTEGER,
-  mode TEXT,
-  details TEXT,
-  error_message TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 3. Aktifkan Row Level Security (RLS)
-ALTER TABLE public.sentinel_registry ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.sentinel_logs ENABLE ROW LEVEL SECURITY;
-
--- 4. Berikan izin Akses untuk Anon & Service Role
-DROP POLICY IF EXISTS "Allow sentinel_registry access" ON public.sentinel_registry;
-CREATE POLICY "Allow sentinel_registry access"
-ON public.sentinel_registry FOR ALL
-TO anon, authenticated, service_role
-USING (true)
-WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow sentinel_logs access" ON public.sentinel_logs;
-CREATE POLICY "Allow sentinel_logs access"
-ON public.sentinel_logs FOR ALL
-TO anon, authenticated, service_role
-USING (true)
-WITH CHECK (true);
-`;
-
-  const targetDbSql = `-- =======================================================
--- TARGET DATABASE: Tabel Heartbeat Sentinel Ringan
--- Jalankan di masing-masing Database Supabase Target
--- (KAWAL, SIMDIK, BAKUMPUL, dll.)
--- =======================================================
-
--- 1. Buat tabel heartbeat ringan jika belum ada
-CREATE TABLE IF NOT EXISTS public._heartbeat (
-  id TEXT PRIMARY KEY,
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  heartbeat_source TEXT,
-  system_nonce TEXT
-);
-
--- 2. Aktifkan Row Level Security (RLS)
-ALTER TABLE public._heartbeat ENABLE ROW LEVEL SECURITY;
-
--- 3. Beri izin Anon / Service Role untuk menulis heartbeat
-DROP POLICY IF EXISTS "Allow heartbeat write" ON public._heartbeat;
-CREATE POLICY "Allow heartbeat write"
-ON public._heartbeat FOR ALL
-TO anon, authenticated, service_role
-USING (true)
-WITH CHECK (true);
-
--- 4. Buat baris data awal
-INSERT INTO public._heartbeat (id, updated_at, heartbeat_source)
-VALUES ('sentinel-heartbeat-pulse', NOW(), 'INIT')
-ON CONFLICT (id) DO UPDATE SET updated_at = NOW();
-`;
+  const masterHubSql = MASTER_HUB_SQL;
+  const targetDbSql = TARGET_DB_SQL;
 
   const activeScript = activeTab === 'master' ? masterHubSql : targetDbSql;
 
@@ -138,6 +59,28 @@ ON CONFLICT (id) DO UPDATE SET updated_at = NOW();
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Tour Status Banner if opened from onboarding */}
+        {fromTour && (
+          <div className="mt-4 p-3 rounded-2xl bg-gradient-to-r from-cyan-950/60 via-slate-900 to-emerald-950/60 border border-cyan-500/40 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="text-slate-200">
+                <strong className="text-cyan-300">Mode Panduan:</strong> Salin skrip Master Hub, lalu klik tombol lanjut di bawah untuk kembali ke panduan.
+              </span>
+            </div>
+            {onContinueTour && (
+              <button
+                type="button"
+                onClick={onContinueTour}
+                className="shrink-0 px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 text-[11px] font-bold flex items-center gap-1 transition-colors"
+              >
+                <span>Lanjut Panduan</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Tab Switcher */}
         <div className="grid grid-cols-2 gap-2 mt-4 p-1.5 rounded-2xl bg-slate-950 border border-slate-800">
@@ -203,15 +146,52 @@ ON CONFLICT (id) DO UPDATE SET updated_at = NOW();
         </div>
 
         {/* Modal Actions */}
-        <div className="mt-5 pt-4 border-t border-slate-800 flex justify-end">
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="brutal-btn-primary px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
-          >
-            {copied ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-black" />}
-            <span>{copied ? 'SQL Berhasil Disalin!' : 'Salin Seluruh Skrip SQL'}</span>
-          </button>
+        <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between gap-3">
+          {fromTour && onContinueTour ? (
+            <>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                Tutup & Kembali
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="brutal-btn-secondary px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-cyan-400" />}
+                  <span>{copied ? 'Tersalin!' : 'Salin SQL'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCopy();
+                    onContinueTour();
+                  }}
+                  className="brutal-btn-primary px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer font-extrabold"
+                >
+                  <span>Salin & Lanjut Panduan (Langkah 3)</span>
+                  <ArrowRight className="w-4 h-4 text-black" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="w-full flex justify-end">
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="brutal-btn-primary px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
+              >
+                {copied ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-black" />}
+                <span>{copied ? 'SQL Berhasil Disalin!' : 'Salin Seluruh Skrip SQL'}</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

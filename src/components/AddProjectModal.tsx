@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import type { SupabaseProject, HeartbeatMode } from '../types/sentinel';
 import { executeHeartbeat, sanitizeSupabaseUrl } from '../lib/sentinel';
-import { X, Sparkles, Database, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Sparkles, Database, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSave: (projectData: Partial<SupabaseProject>) => void;
   initialProject?: SupabaseProject | null;
+  fromTour?: boolean;
+  onContinueTour?: () => void;
 }
 
 export const AddProjectModal: React.FC<Props> = ({
@@ -15,6 +17,8 @@ export const AddProjectModal: React.FC<Props> = ({
   onClose,
   onSave,
   initialProject,
+  fromTour = false,
+  onContinueTour,
 }) => {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
@@ -106,7 +110,11 @@ export const AddProjectModal: React.FC<Props> = ({
       notes: notes.trim(),
     });
 
-    onClose();
+    if (fromTour && onContinueTour) {
+      onContinueTour();
+    } else {
+      onClose();
+    }
   };
 
   return (
@@ -137,6 +145,28 @@ export const AddProjectModal: React.FC<Props> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Tour Status Banner if opened from onboarding */}
+        {fromTour && (
+          <div className="mt-4 p-3 rounded-2xl bg-gradient-to-r from-amber-950/60 via-slate-900 to-cyan-950/60 border border-amber-500/40 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="text-slate-200">
+                <strong className="text-amber-300">Mode Panduan:</strong> Langkah 4 - Daftarkan database target yang ingin dijaga keaktifannya.
+              </span>
+            </div>
+            {onContinueTour && (
+              <button
+                type="button"
+                onClick={onContinueTour}
+                className="shrink-0 px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 text-[11px] font-bold flex items-center gap-1 transition-colors"
+              >
+                <span>Lanjut Panduan</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
@@ -285,9 +315,10 @@ export const AddProjectModal: React.FC<Props> = ({
               </button>
               <button
                 type="submit"
-                className="w-1/2 sm:w-auto brutal-btn-primary px-5 py-2.5 rounded-xl text-xs cursor-pointer"
+                className="w-1/2 sm:w-auto brutal-btn-primary px-5 py-2.5 rounded-xl text-xs cursor-pointer flex items-center justify-center gap-1.5 font-bold"
               >
-                {initialProject ? 'Simpan Perubahan' : 'Tambah ke Sentinel'}
+                <span>{fromTour ? 'Tambah & Lanjut Panduan' : initialProject ? 'Simpan Perubahan' : 'Tambah ke Sentinel'}</span>
+                {fromTour && <ArrowRight className="w-3.5 h-3.5 text-black" />}
               </button>
             </div>
           </div>
