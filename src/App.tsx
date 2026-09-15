@@ -471,12 +471,12 @@ export function App() {
               <HardDrive className="w-8 h-8 text-cyan-400" />
             </div>
             <h3 className="text-lg font-bold text-white mb-1">
-              Tidak Ada Proyek yang Cocok
+              {searchQuery ? 'Tidak Ada Proyek yang Cocok' : 'Belum Ada Proyek Disematkan'}
             </h3>
             <p className="text-xs text-slate-400 max-w-sm mx-auto mb-5">
               {searchQuery
                 ? 'Tidak ditemukan database yang cocok dengan kata kunci pencarian Anda.'
-                : 'Belum ada proyek Supabase yang terdaftar di Sentinel ini.'}
+                : 'Belum ada proyek database Supabase yang terdaftar di Sentinel ini. Klik tombol di bawah untuk menambahkan proyek pertama Anda atau sambungkan Master Hub.'}
             </p>
             <button
               onClick={() => {

@@ -4,69 +4,27 @@ const PROJECTS_STORAGE_KEY = 'selalu_aktif_projects_v1';
 const LOGS_STORAGE_KEY = 'selalu_aktif_logs_v1';
 const MAX_LOGS = 60;
 
-// Template demo proyek awal
-const DEFAULT_SAMPLE_PROJECTS: SupabaseProject[] = [
-  {
-    id: 'proj-kawal',
-    name: 'KAWAL - Monitoring System',
-    url: 'https://glkawfdtyzhujiimaigf.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_kawal_sample',
-    targetTable: 'kawal_system_settings',
-    targetMode: 'wal_mutation',
-    status: 'healthy',
-    lastPingAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), // 12 jam lalu
-    lastLatencyMs: 142,
-    lastStatusCode: 200,
-    lastStatusText: 'OK',
-    notes: 'Sistem KAWAL Utama',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'proj-simdik',
-    name: 'SIMDIK V3 - DARAMAN',
-    url: 'https://ixklnvfrtqyubnmapzxc.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_simdik_sample',
-    targetTable: 'profiles',
-    targetMode: 'query_count',
-    status: 'healthy',
-    lastPingAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(), // 36 jam lalu
-    lastLatencyMs: 185,
-    lastStatusCode: 200,
-    lastStatusText: 'OK',
-    notes: 'Sistem Presensi Guru & Siswa',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'proj-bakumpul',
-    name: 'BAKUMPUL Hub',
-    url: 'https://abczzzopqrstuvwxyzab.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_bakumpul_sample',
-    targetTable: '_heartbeat',
-    targetMode: 'wal_mutation',
-    status: 'warning',
-    lastPingAt: new Date(Date.now() - 1000 * 60 * 60 * 105).toISOString(), // 4.3 hari lalu (>4 hari)
-    lastLatencyMs: 230,
-    lastStatusCode: 200,
-    lastStatusText: 'OK',
-    notes: 'Komunitas Bakumpul',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-];
+// Identifier akun dummy sampel bawaan untuk dibersihkan secara otomatis
+const DUMMY_PROJECT_IDS = new Set(['proj-kawal', 'proj-simdik', 'proj-bakumpul']);
 
 export function getStoredProjects(): SupabaseProject[] {
   try {
     const raw = localStorage.getItem(PROJECTS_STORAGE_KEY);
     if (!raw) {
-      // Seed default sample projects on first run
-      localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(DEFAULT_SAMPLE_PROJECTS));
-      return DEFAULT_SAMPLE_PROJECTS;
+      return [];
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      // Hapus otomatis akun dummy bawaan agar antarmuka benar-benar bersih jika belum ada link
+      const filtered = parsed.filter((p: SupabaseProject) => !DUMMY_PROJECT_IDS.has(p.id));
+      if (filtered.length !== parsed.length) {
+        saveProjects(filtered);
+      }
+      return filtered;
+    }
+    return [];
   } catch {
-    return DEFAULT_SAMPLE_PROJECTS;
+    return [];
   }
 }
 
@@ -99,7 +57,12 @@ export function calculateProjectHealth(project: SupabaseProject): ProjectStatus 
 export function getStoredLogs(): PingLog[] {
   try {
     const raw = localStorage.getItem(LOGS_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((l: PingLog) => !DUMMY_PROJECT_IDS.has(l.projectId));
+    }
+    return [];
   } catch {
     return [];
   }

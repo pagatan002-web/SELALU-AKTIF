@@ -209,7 +209,7 @@ export const AddProjectModal: React.FC<Props> = ({
             <input
               type="text"
               required
-              placeholder="Contoh: KAWAL Main DB / SIMDIK V3"
+              placeholder="Contoh: Database Produksi / Proyek Utama"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-sans text-sm"
