@@ -2,8 +2,8 @@ name: SELALU AKTIF - Heartbeat Sentinel Runner
 
 on:
   schedule:
-    # Berjalan setiap 3 hari sekali pada jam 04:15 UTC (12:15 WITA)
-    - cron: '15 4 */3 * *'
+    # Berjalan 2x sehari: jam 04:15 UTC (12:15 WITA) & 16:15 UTC (00:15 WITA)
+    - cron: '15 4,16 * * *'
   workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub UI
 
 jobs:

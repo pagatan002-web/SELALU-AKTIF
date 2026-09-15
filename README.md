@@ -145,7 +145,7 @@ CREATE POLICY "Allow sentinel_logs access" ON public.sentinel_logs FOR ALL TO an
 2. Masukkan 2 rahasia:
    * `MASTER_SUPABASE_URL`: URL Supabase Master Anda.
    * `MASTER_SUPABASE_KEY`: Anon Key atau Service Role Key Supabase Master Anda.
-3. Push kode ini ke GitHub. Selesai! Robot GitHub Actions akan otomatis berjalan setiap 3 hari sekali.
+3. Push kode ini ke GitHub. Selesai! Robot GitHub Actions akan otomatis berjalan 2x sehari (setiap 12 jam) dengan strategi Dual-Action (Write WAL + Engine Read).
 
 ---
 

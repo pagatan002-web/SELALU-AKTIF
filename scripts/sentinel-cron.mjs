@@ -265,6 +265,7 @@ async function pingProject(project) {
         system_nonce: nonce,
       };
 
+      // 1. Transaksi Tulis: Mutasi WAL (Upsert)
       res = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -275,15 +276,32 @@ async function pingProject(project) {
       });
 
       if (res.status === 404 || res.status === 401 || res.status === 403) {
-        // Fallback to dynamic count read
+        // Fallback jika tabel belum ada atau RLS memblokir write
         const fallbackEndpoint = `${cleanUrl}/rest/v1/${targetTable}?select=*&limit=1`;
         res = await fetch(fallbackEndpoint, {
           method: 'GET',
           headers: { ...headers, 'Prefer': 'count=exact' },
         });
-        detail = `Fallback read '${targetTable}' (HTTP ${res.status})`;
+        detail = `Fallback dynamic read '${targetTable}' (HTTP ${res.status})`;
+      } else if (res.ok || res.status === 201 || res.status === 204) {
+        // 2. Transaksi Baca: Dual-Action Read Query langsung ke engine PostgreSQL
+        try {
+          const readEndpoint = `${cleanUrl}/rest/v1/${targetTable}?id=eq.sentinel-heartbeat-pulse&select=id,updated_at&limit=1`;
+          const readRes = await fetch(readEndpoint, {
+            method: 'GET',
+            headers: { ...headers, 'Prefer': 'count=exact' },
+          });
+          if (readRes.ok) {
+            detail = `Dual-Action Berhasil: WAL Write (HTTP ${res.status}) + Engine Read (HTTP ${readRes.status})`;
+          } else {
+            detail = `WAL transaction recorded (HTTP ${res.status})`;
+          }
+        } catch {
+          detail = `WAL transaction recorded (HTTP ${res.status})`;
+        }
       } else {
-        detail = `WAL transaction recorded (HTTP ${res.status})`;
+        const errText = await res.text();
+        detail = `HTTP ${res.status}: ${errText.substring(0, 100)}`;
       }
     } else {
       const endpoint = `${cleanUrl}/rest/v1/${targetTable}?select=*&limit=1`;

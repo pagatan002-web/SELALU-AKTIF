@@ -87,7 +87,21 @@ export async function executeHeartbeat(
           });
           details = `Fallback Dynamic Read ke tabel '${targetTable}' berhasil (Engine touched).`;
         } else if (response.ok) {
-          details = `Transaksi WAL berhasil ditulis ke PostgreSQL (HTTP ${response.status}).`;
+          // Dual-Action: Eksekusi transaksi baca (Read Query) segera setelah mutasi tulis berhasil
+          try {
+            const readEndpoint = `${cleanUrl}/rest/v1/${targetTable}?id=eq.sentinel-heartbeat-pulse&select=id,updated_at&limit=1`;
+            const readRes = await fetch(readEndpoint, {
+              method: 'GET',
+              headers: { ...baseHeaders, 'Prefer': 'count=exact' },
+            });
+            if (readRes.ok) {
+              details = `Dual-Action Berhasil: WAL Write (HTTP ${response.status}) + Engine Read (HTTP ${readRes.status}).`;
+            } else {
+              details = `Transaksi WAL berhasil ditulis ke PostgreSQL (HTTP ${response.status}).`;
+            }
+          } catch {
+            details = `Transaksi WAL berhasil ditulis ke PostgreSQL (HTTP ${response.status}).`;
+          }
         } else {
           const resText = await response.text();
           details = `Status HTTP ${response.status}: ${resText.substring(0, 120)}`;
